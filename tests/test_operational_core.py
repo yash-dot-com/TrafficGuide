@@ -7,10 +7,10 @@ from pathlib import Path
 import networkx as nx
 import pandas as pd
 
-from allocation import allocate_barricades
-from diversion import congestion_weight_function
-from resource_sizing import control_point_limit_for_event, size_control_point
-from road_graph import cache_demo_graph, get_graph, graph_cache_metrics, reset_graph_cache_metrics
+from backend.optimization.allocation import allocate_barricades
+from backend.optimization.diversion import congestion_weight_function
+from backend.optimization.resource_sizing import control_point_limit_for_event, size_control_point
+from backend.geo.road_graph import cache_demo_graph, get_graph, graph_cache_metrics, reset_graph_cache_metrics
 
 
 class OperationalCoreTests(unittest.TestCase):

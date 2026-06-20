@@ -9,8 +9,8 @@ from typing import Any
 import networkx as nx
 import pandas as pd
 
-from geo_utils import edge_names, haversine_meters, nearest_node_by_haversine, node_lat_lon
-from road_graph import get_graph
+from backend.geo.geo_utils import edge_names, haversine_meters, nearest_node_by_haversine, node_lat_lon
+from backend.geo.road_graph import get_graph
 
 
 MODEL_DIR = Path(__file__).with_name("models")

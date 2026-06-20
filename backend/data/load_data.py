@@ -11,7 +11,7 @@ import pandas as pd
 from psycopg2.extras import execute_values
 from sqlalchemy import create_engine, text
 
-from env_loader import load_project_env
+from backend.config.env_loader import load_project_env
 
 
 load_project_env()

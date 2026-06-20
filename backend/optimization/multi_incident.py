@@ -4,10 +4,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from allocation import load_police_stations
-from generate_plan import generate_deployment_plan
-from predict import predict_impact
-from road_graph import get_graph
+from backend.optimization.allocation import load_police_stations
+from backend.optimization.generate_plan import generate_deployment_plan
+from backend.ml.predict import predict_impact
+from backend.geo.road_graph import get_graph
 
 
 @dataclass(frozen=True)

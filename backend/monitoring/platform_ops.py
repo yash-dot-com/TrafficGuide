@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from env_loader import load_project_env
+from backend.config.env_loader import load_project_env
 
 
 load_project_env()

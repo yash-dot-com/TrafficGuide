@@ -357,7 +357,7 @@ EOF
 ```bash
 # If you have a PostgreSQL instance:
 export DATABASE_URL="postgresql+psycopg2://user:password@localhost:5432/gridlock"
-python load_data.py path/to/events.csv
+python -m backend.data.load_data path/to/events.csv
 ```
 
 ### 4. Run the API
@@ -375,7 +375,7 @@ Visit http://localhost:8000/docs for interactive API documentation.
 python predict.py
 
 # Deployment plan generation
-python generate_plan.py --lat 12.9716 --lon 77.5946 --demo-cache
+python -m backend.optimization.generate_plan --lat 12.9716 --lon 77.5946 --demo-cache
 ```
 
 ---
@@ -637,16 +637,59 @@ Each line is a complete JSON object (no array wrapper).
 
 ---
 
+## Project Structure
+
+The backend is organized into a logical package structure under `backend/`:
+
+```
+backend/
+├── api/              # REST API & WebSocket endpoints
+│   └── main.py       # FastAPI app (entry point for uvicorn)
+├── ml/               # Machine learning models & predictions
+│   ├── predict.py    # ML prediction pipeline
+│   ├── feature_cleaning.py
+│   ├── train_models.py
+│   └── model_monitoring.py
+├── optimization/     # Planning & resource allocation
+│   ├── generate_plan.py      # Deployment plan generation
+│   ├── allocation.py         # OR-Tools solver
+│   ├── multi_incident.py
+│   ├── control_points.py
+│   ├── diversion.py
+│   └── resource_sizing.py
+├── geo/              # Geographic & spatial utilities
+│   ├── geo_utils.py  # Distance, coordinate helpers
+│   ├── road_graph.py # OpenStreetMap network
+│   └── enrich_zone.py
+├── data/             # Data loading, workflows, audit trails
+│   ├── load_data.py  # CSV ingestion
+│   ├── workflow.py   # Plan lifecycle & approval
+│   └── seed_feedback.py
+├── integrations/     # External data sources & APIs
+│   └── integrations.py
+├── monitoring/       # Operational metrics & compliance
+│   ├── operational_monitoring.py
+│   ├── roi_metrics.py
+│   ├── platform_ops.py
+│   └── benchmark_system.py
+└── config/           # Configuration management
+    └── env_loader.py
+```
+
+**Root-level wrapper**: `main.py` delegates to `backend/api/main.py` so the existing uvicorn command works unchanged.
+
+---
+
 ## Core Modules
 
-### 1. **load_data.py** — CSV Ingestion & Normalization
+### 1. **backend/data/load_data.py** — CSV Ingestion & Normalization
 
 **Purpose**: Bulk-load Astram CSV exports into PostgreSQL; normalize data quality; auto-seed police stations.
 
 **Main Function**: `main()`
 
 ```python
-python load_data.py path/to/events.csv [--schema path/to/schema.sql]
+python -m backend.data.load_data path/to/events.csv [--schema path/to/schema.sql]
 ```
 
 **What It Does**:
@@ -701,7 +744,7 @@ Null key columns: latitude=31, longitude=31, ...
 
 ---
 
-### 2. **predict.py** — ML Impact Forecasting
+### 2. **backend/ml/predict.py** — ML Impact Forecasting
 
 **Purpose**: Core prediction engine. Takes event features → returns severity, duration, risk score, operational metrics.
 
@@ -709,7 +752,7 @@ Null key columns: latitude=31, longitude=31, ...
 
 ```python
 import json
-from predict import predict_impact
+from backend.ml.predict import predict_impact
 
 sample_event = {
     "event_cause": "Accident",
@@ -874,14 +917,14 @@ metrics = {
 
 ---
 
-### 3. **generate_plan.py** — Deployment Plan Generation
+### 3. **backend/optimization/generate_plan.py** — Deployment Plan Generation
 
 **Purpose**: Orchestrates end-to-end plan generation (control points → resource sizing → allocation → diversions).
 
 **Main Function**: `generate_deployment_plan(event_features: dict, graph=None, control_radius_m=None) → dict`
 
 ```python
-from generate_plan import generate_deployment_plan
+from backend.optimization.generate_plan import generate_deployment_plan
 import json
 
 event = {
@@ -1002,7 +1045,7 @@ print(json.dumps(plan, indent=2))
 
 ---
 
-### 4. **allocation.py** — Resource Allocation Optimization
+### 4. **backend/optimization/allocation.py** — Resource Allocation Optimization
 
 **Purpose**: Solve the assignment problem: given control points and police stations, find optimal allocations.
 
@@ -1073,7 +1116,7 @@ stations = [
 
 ---
 
-### 5. **main.py** — FastAPI REST API
+### 5. **backend/api/main.py** — FastAPI REST API
 
 **Purpose**: Expose forecasting, planning, workflow, and feedback endpoints.
 
@@ -1300,7 +1343,7 @@ Broadcasts every 5s:
 
 ---
 
-### 6. **workflow.py** — Plan Lifecycle & Audit
+### 6. **backend/data/workflow.py** — Plan Lifecycle & Audit
 
 **Purpose**: Manage plan versioning, approval chains, and immutable audit trail.
 
@@ -1311,7 +1354,7 @@ Broadcasts every 5s:
 Initiate a plan with approval workflow.
 
 ```python
-from workflow import create_plan_record
+from backend.data.workflow import create_plan_record
 
 plan_record = create_plan_record(
     event_id="crash-001",
@@ -1348,7 +1391,7 @@ Audit logs: `action=plan.created`
 State transition: draft → submitted → approved → activated → closed
 
 ```python
-from workflow import update_plan_approval
+from backend.data.workflow import update_plan_approval
 
 updated = update_plan_approval(
     plan_id="550e8400-e29b-41d4-a716-446655440000",
@@ -1394,7 +1437,7 @@ Audit logs: `action=plan.submitted`
 Append to audit_log.jsonl (or PostgreSQL if connected).
 
 ```python
-from workflow import audit_log
+from backend.data.workflow import audit_log
 
 log_entry = audit_log(
     action="feedback.recorded",
@@ -1424,7 +1467,7 @@ Output:
 
 ---
 
-### 7. **feature_cleaning.py** — ML Feature Normalization
+### 7. **backend/ml/feature_cleaning.py** — ML Feature Normalization
 
 Canonicalize categorical feature values to prevent ML model brittleness.
 
@@ -1443,7 +1486,7 @@ duration_cap_for_event(event, default_cap=480) → int  # event-type-specific ce
 
 ---
 
-### 8. **integrations.py** — Live Data Adapters
+### 8. **backend/integrations/integrations.py** — Live Data Adapters
 
 **Purpose**: Adapter layer for real-time feeds (Google Maps, weather, CCTV, public advisories).
 
@@ -1481,12 +1524,12 @@ operational_context_for_event(event) → dict  # Speed, weather, advisories
 
 ---
 
-### 9. **road_graph.py** — OSM Road Network Management
+### 9. **backend/geo/road_graph.py** — OSM Road Network Management
 
 **Purpose**: Load and cache OpenStreetMap road graphs for spatial queries.
 
 ```python
-from road_graph import get_graph_for_point, get_graph, cache_demo_graph
+from backend.geo.road_graph import get_graph_for_point, get_graph, cache_demo_graph
 
 # Download graph centered on event location
 graph = get_graph_for_point(latitude=12.9716, longitude=77.5946)
@@ -1503,12 +1546,12 @@ graph = get_graph(cache_path=demo_path)
 
 ---
 
-### 10. **control_points.py** — Geographic Control Point Discovery
+### 10. **backend/optimization/control_points.py** — Geographic Control Point Discovery
 
 **Purpose**: Identify optimal positions to deploy personnel around an incident.
 
 ```python
-from control_points import find_control_points
+from backend.optimization.control_points import find_control_points
 
 points = find_control_points(
     latitude=12.9716,
@@ -1539,12 +1582,12 @@ Output:
 
 ---
 
-### 11. **resource_sizing.py** — Dynamic Resource Calculation
+### 11. **backend/optimization/resource_sizing.py** — Dynamic Resource Calculation
 
 **Purpose**: Convert prediction severity → control point resource needs.
 
 ```python
-from resource_sizing import size_event_resources
+from backend.optimization.resource_sizing import size_event_resources
 
 resources = size_event_resources(control_points, prediction_context)
 ```
@@ -1569,12 +1612,12 @@ Output:
 
 ---
 
-### 12. **diversion.py** — Alternative Route Computation
+### 12. **backend/optimization/diversion.py** — Alternative Route Computation
 
 **Purpose**: Suggest traffic diversions to mitigate downstream congestion.
 
 ```python
-from diversion import compute_diversions
+from backend.optimization.diversion import compute_diversions
 
 diversions = compute_diversions(
     latitude=12.9716,
@@ -1784,7 +1827,7 @@ createdb gridlock
 psql gridlock < schema.sql
 
 # Load historical data
-python load_data.py path/to/events.csv
+python -m backend.data.load_data path/to/events.csv
 ```
 
 If you skip this, the system falls back to JSONL files and hardcoded police stations.
@@ -1806,7 +1849,7 @@ ls -la models/
 If missing, run:
 
 ```bash
-python train_models.py --feedback-path feedback_log.jsonl
+python -m backend.ml.train_models --feedback-path feedback_log.jsonl
 ```
 
 ### Step 7: Run Server
@@ -2280,7 +2323,7 @@ python -m pytest tests/integration/ -v
 python predict.py
 
 # Plan generation (demo graph, no network calls)
-python generate_plan.py --lat 12.9716 --lon 77.5946 --demo-cache
+python -m backend.optimization.generate_plan --lat 12.9716 --lon 77.5946 --demo-cache
 
 # Allocation solver
 echo '{"control_points": [...], "stations": [...], "max_radius_m": 6000}' | \
@@ -2311,7 +2354,7 @@ locust -f loadtest.py --host=http://localhost:8000
 
 **Solution**:
 ```bash
-python train_models.py --feedback-path feedback_log.jsonl --output-dir models
+python -m backend.ml.train_models --feedback-path feedback_log.jsonl --output-dir models
 ```
 
 ### "DATABASE_URL is required"
@@ -2338,11 +2381,11 @@ python train_models.py --feedback-path feedback_log.jsonl --output-dir models
 2. Delete stale cache and re-download:
    ```bash
    rm -rf osm_cache/
-   python generate_plan.py --lat 12.9716 --lon 77.5946
+   python -m backend.optimization.generate_plan --lat 12.9716 --lon 77.5946
    ```
 3. Use demo graph for testing:
    ```bash
-   python generate_plan.py --demo-cache
+   python -m backend.optimization.generate_plan --demo-cache
    ```
 
 ### "Personnel shortfall: X units unavailable"
@@ -2368,7 +2411,7 @@ python train_models.py --feedback-path feedback_log.jsonl --output-dir models
    ```
 2. Retrain if drift detected:
    ```bash
-   python train_models.py
+   python -m backend.ml.train_models
    ```
 3. Review feedback for data quality issues
 

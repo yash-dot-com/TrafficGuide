@@ -4,8 +4,8 @@ from typing import Any
 
 import networkx as nx
 
-from geo_utils import edge_highway_values, haversine_meters, node_lat_lon
-from road_graph import get_graph
+from backend.geo.geo_utils import edge_highway_values, haversine_meters, node_lat_lon
+from backend.geo.road_graph import get_graph
 
 
 ARTERIAL_HIGHWAYS = {

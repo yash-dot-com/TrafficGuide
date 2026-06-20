@@ -7,8 +7,8 @@ from typing import Any
 
 import pandas as pd
 
-from allocation import effective_barricades, effective_personnel, load_police_stations
-from road_graph import graph_cache_metrics
+from backend.optimization.allocation import effective_barricades, effective_personnel, load_police_stations
+from backend.geo.road_graph import graph_cache_metrics
 
 
 APP_ROOT = Path(__file__).resolve().parent

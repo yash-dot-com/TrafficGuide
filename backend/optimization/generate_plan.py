@@ -5,12 +5,12 @@ import json
 import time
 from typing import Any
 
-from allocation import allocate_barricades, allocate_personnel, load_police_stations
-from control_points import find_control_points
-from diversion import compute_diversions
-from geo_utils import haversine_meters, nearest_node_by_haversine, node_lat_lon
-from resource_sizing import control_point_limit_for_event, size_event_resources
-from road_graph import cache_demo_graph, get_graph, get_graph_for_point
+from backend.optimization.allocation import allocate_barricades, allocate_personnel, load_police_stations
+from backend.optimization.control_points import find_control_points
+from backend.optimization.diversion import compute_diversions
+from backend.geo.geo_utils import haversine_meters, nearest_node_by_haversine, node_lat_lon
+from backend.optimization.resource_sizing import control_point_limit_for_event, size_event_resources
+from backend.geo.road_graph import cache_demo_graph, get_graph, get_graph_for_point
 
 
 def event_lat_lon(event_features: dict[str, Any]) -> tuple[float, float]:
@@ -32,7 +32,7 @@ def prediction_context(event_features: dict[str, Any]) -> dict[str, Any]:
     if required_prediction_keys.issubset(event_features):
         return dict(event_features)
 
-    from predict import predict_impact
+    from backend.ml.predict import predict_impact
 
     predicted = predict_impact(event_features)
     merged = dict(event_features)

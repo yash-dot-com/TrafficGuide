@@ -7,7 +7,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from env_loader import load_project_env
+from backend.config.env_loader import load_project_env
 
 
 load_project_env()
@@ -23,14 +23,14 @@ warnings.filterwarnings(
 import joblib
 import pandas as pd
 
-from feature_cleaning import (
+from backend.ml.feature_cleaning import (
     duration_cap_for_event,
     event_category_for_cause,
     is_minor_road_defect_context,
     normalize_category,
     normalize_event_cause,
 )
-from integrations import operational_context_for_event
+from backend.integrations.integrations import operational_context_for_event
 
 
 MODEL_DIR = Path(os.environ.get("MODEL_DIR", Path(__file__).with_name("models")))

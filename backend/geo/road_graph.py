@@ -9,8 +9,8 @@ from typing import Any
 
 import networkx as nx
 
-from env_loader import load_project_env
-from geo_utils import haversine_meters, nearest_node_by_haversine, node_lat_lon
+from backend.config.env_loader import load_project_env
+from backend.geo.geo_utils import haversine_meters, nearest_node_by_haversine, node_lat_lon
 
 
 load_project_env()

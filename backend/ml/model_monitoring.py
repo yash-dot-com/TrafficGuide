@@ -6,7 +6,7 @@ from typing import Any
 
 import pandas as pd
 
-from integrations import weather_feed
+from backend.integrations.integrations import weather_feed
 
 
 APP_ROOT = Path(__file__).resolve().parent

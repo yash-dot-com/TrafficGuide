@@ -10,14 +10,14 @@ from typing import Any
 
 from sqlalchemy import create_engine, text
 
-from env_loader import load_project_env
-from generate_plan import generate_deployment_plan
-from main import (
+from backend.config.env_loader import load_project_env
+from backend.optimization.generate_plan import generate_deployment_plan
+from backend.api.main import (
     LOCAL_FEEDBACK_PATH,
     ensure_feedback_schema,
     planned_event_features,
 )
-from predict import predict_impact
+from backend.ml.predict import predict_impact
 
 
 load_project_env()

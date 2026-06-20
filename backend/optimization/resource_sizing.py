@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
-from feature_cleaning import event_category_for_cause
+from backend.ml.feature_cleaning import event_category_for_cause
 
 
 TRAFFIC_CONTROL_CAUSE_KEYWORDS = {

@@ -4,9 +4,9 @@ import argparse
 import json
 import time
 
-from generate_plan import generate_deployment_plan
-from operational_monitoring import operational_metrics_snapshot
-from road_graph import graph_cache_metrics, reset_graph_cache_metrics
+from backend.optimization.generate_plan import generate_deployment_plan
+from backend.monitoring.operational_monitoring import operational_metrics_snapshot
+from backend.geo.road_graph import graph_cache_metrics, reset_graph_cache_metrics
 
 
 def parse_args() -> argparse.Namespace:

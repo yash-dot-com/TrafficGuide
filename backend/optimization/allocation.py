@@ -7,8 +7,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from env_loader import load_project_env
-from geo_utils import haversine_meters
+from backend.config.env_loader import load_project_env
+from backend.geo.geo_utils import haversine_meters
 
 
 load_project_env()
