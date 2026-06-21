@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 
 const API_BASE = "https://trafficguide-production-4c56.up.railway.app/";
-const WS_BASE = API_BASE.replace(/^http/, "ws");
+const WS_BASE = "wss://trafficguide-production-4c56.up.railway.app/";
 const BENGALURU_CENTER = [12.9716, 77.5946];
 const TIMELINE_STATES = ["T-24h", "T-2h", "Live", "T+2h"];
 const FIELD_STATION = "Cubbon Park";
